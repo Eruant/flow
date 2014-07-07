@@ -30,7 +30,58 @@ module.exports = {
 
 module.exports.init();
 
-},{"./classes/audioGenerator":2}],2:[function(require,module,exports){
+},{"./classes/audioGenerator":3}],2:[function(require,module,exports){
+var AudioData = function () {
+
+  this.stepTime = 250;
+  this.sequenceLength = 8;
+  this.channels = [];
+};
+
+AudioData.prototype = {
+
+  addChannel: function (frequency, type) {
+
+    var channel, i, il;
+    
+    channel = {
+      frequency: frequency,
+      type: type || 0,
+      sequence: []
+    };
+
+    i = 0;
+    il = this.sequenceLength;
+
+    for (; i < il; i++) {
+      channel.sequence[i] = 0;
+    }
+
+    this.channels.push(channel);
+
+    return this.channels.length - 1;
+  },
+
+  toggleStep: function (channel, step) {
+
+    var item = this.channels[channel].sequence[step];
+
+    if (item === 1) {
+      item = 0;
+    } else if (item === 0) {
+      item = 1;
+    }
+
+    this.channels[channel].sequence[step] = item;
+  }
+
+};
+
+module.exports = AudioData;
+
+},{}],3:[function(require,module,exports){
+var AudioData = require('./AudioData');
+
 var AudioGenerator = function () {
 
   try {
@@ -38,7 +89,23 @@ var AudioGenerator = function () {
     var ac = window.AudioContext || window.webkitAudioContext;
     this.ctx = new ac();
     this.oscillators = [];
+    this.audioData = {};
     this.notes = [];
+    this.interval = null;
+
+    this.audioData = new AudioData();
+
+    var channel = this.audioData.addChannel(100, 0);
+    this.audioData.toggleStep(channel, 0);
+    this.audioData.toggleStep(channel, 2);
+    this.audioData.toggleStep(channel, 4);
+    this.audioData.toggleStep(channel, 6);
+
+    channel = this.audioData.addChannel(200, 0);
+    this.audioData.toggleStep(channel, 1);
+    this.audioData.toggleStep(channel, 3);
+    this.audioData.toggleStep(channel, 5);
+    this.audioData.toggleStep(channel, 7);
 
   } catch (e) {
     throw {
@@ -57,6 +124,35 @@ AudioGenerator.prototype = {
 
   play: function () {
 
+    var sequencePosition = 0;
+
+    this.interval = window.setInterval(function () {
+
+      this.stopNote();
+
+      for (var i = 0, il = this.audioData.channels.length; i < il; i++) {
+        if (this.audioData.channels[i].sequence[sequencePosition] === 1) {
+          this.addNote(this.audioData.channels[i].frequency);
+        }
+      }
+
+      this.playNote();
+
+      sequencePosition++;
+      if (sequencePosition > this.audioData.sequenceLength) {
+        sequencePosition = 0;
+      }
+    }.bind(this), this.audioData.stepTime);
+  },
+
+  stop: function () {
+    window.clearInterval(this.interval);
+    this.interval = null;
+    this.stopNote();
+  },
+
+  playNote: function () {
+
     var i, il, note, oscillator;
 
     i = 0;
@@ -74,7 +170,7 @@ AudioGenerator.prototype = {
 
   },
 
-  stop: function () {
+  stopNote: function () {
     var i = 0,
       il = this.oscillators.length,
       item;
@@ -85,9 +181,10 @@ AudioGenerator.prototype = {
     }
 
     this.oscillators = [];
+    this.notes = [];
   }
 };
 
 module.exports = AudioGenerator;
 
-},{}]},{},[1])
+},{"./AudioData":2}]},{},[1])
