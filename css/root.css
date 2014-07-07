@@ -1,4 +1,23 @@
 html, body {
   width: 100%;
   height: 100%;
-  margin: 0; }
+  margin: 0;
+  text-align: center;
+  font-family: 'Helvetica Neue', Helvetica; }
+
+#sequence-display {
+  margin: 30px auto; }
+  #sequence-display th {
+    padding: 10px; }
+  #sequence-display td {
+    width: 50px;
+    height: 50px;
+    background: #ccc; }
+  #sequence-display input {
+    max-width: 50px; }
+  #sequence-display .channel-0 {
+    border: solid 1px #f00; }
+  #sequence-display .channel-1 {
+    border: solid 1px #0f0; }
+  #sequence-display .channel-2 {
+    border: solid 1px #00f; }
