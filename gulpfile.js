@@ -1,3 +1,4 @@
+/*globals console*/
 var gulp = require('gulp'),
     jshint = require('gulp-jshint'),
     browserify = require('browserify'),
@@ -64,7 +65,7 @@ gulp.task('assets', function () {
     .pipe(gulp.dest('bin/assets'));
 });
 
-gulp.task('watch', ['watch-scripts', 'watch-markup']);
+gulp.task('watch', ['watch-scripts', 'watch-markup', 'watch-styles']);
 
 gulp.task('watch-scripts', function () {
   return gulp.watch('src/js/**/*.js', function () {
@@ -73,13 +74,19 @@ gulp.task('watch-scripts', function () {
 });
 
 gulp.task('watch-markup', function () {
-  return gulp.watch('src/index.html', function () {
+  return gulp.watch('src/**/*.jade', function () {
     gulp.run('markup');
   });
 });
 
+gulp.task('watch-styles', function () {
+  return gulp.watch('src/**/*.scss', function () {
+    gulp.run('styles');
+  });
+});
+
 gulp.task('server', ['compile'], function () {
-  return browserSync.init(['bin/js/*.js', 'bin/index.html'], {
+  return browserSync.init(['bin/js/*.js', 'bin/index.html', 'bin/css/*.css'], {
     server: {
       baseDir: './bin'
     }

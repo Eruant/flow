@@ -1,12 +1,14 @@
 mixin channel(channel, sequence)
   tr
+    td= channel
     td
-      input(value=channel)
+      input(value=440)
     - each val, index in sequence
-      td= val + ":" + index
+      td.channel-= index + ":" + val
 
 table#sequence-display
   tr
+    th Channel
     th Frequency
     th 1
     th 2
@@ -16,7 +18,6 @@ table#sequence-display
     th 6
     th 7
     th 8
-  +channel(0, [1, 2, 3, 4, 5, 6, 7, 8])
-  +channel(1, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])
-
-button#add-channel Add a channel
+  +channel(0, [1, 0, 1, 0, 1, 0, 1, 0])
+  +channel(1, [0, 1, 0, 1, 0, 1, 0, 0])
+  +channel(2, [0, 0, 1, 0, 0, 0, 1, 0])
