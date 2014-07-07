@@ -1,0 +1,22 @@
+mixin channel(channel, sequence)
+  tr
+    td
+      input(value=channel)
+    - each val, index in sequence
+      td= val + ":" + index
+
+table#sequence-display
+  tr
+    th Frequency
+    th 1
+    th 2
+    th 3
+    th 4
+    th 5
+    th 6
+    th 7
+    th 8
+  +channel(0, [1, 2, 3, 4, 5, 6, 7, 8])
+  +channel(1, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])
+
+button#add-channel Add a channel

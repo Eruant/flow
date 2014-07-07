@@ -1,3 +1,5 @@
+var AudioData = require('./AudioData');
+
 var AudioGenerator = function () {
 
   try {
@@ -5,7 +7,23 @@ var AudioGenerator = function () {
     var ac = window.AudioContext || window.webkitAudioContext;
     this.ctx = new ac();
     this.oscillators = [];
+    this.audioData = {};
     this.notes = [];
+    this.interval = null;
+
+    this.audioData = new AudioData();
+
+    var channel = this.audioData.addChannel(100, 0);
+    this.audioData.toggleStep(channel, 0);
+    this.audioData.toggleStep(channel, 2);
+    this.audioData.toggleStep(channel, 4);
+    this.audioData.toggleStep(channel, 6);
+
+    channel = this.audioData.addChannel(200, 0);
+    this.audioData.toggleStep(channel, 1);
+    this.audioData.toggleStep(channel, 3);
+    this.audioData.toggleStep(channel, 5);
+    this.audioData.toggleStep(channel, 7);
 
   } catch (e) {
     throw {
@@ -24,6 +42,35 @@ AudioGenerator.prototype = {
 
   play: function () {
 
+    var sequencePosition = 0;
+
+    this.interval = window.setInterval(function () {
+
+      this.stopNote();
+
+      for (var i = 0, il = this.audioData.channels.length; i < il; i++) {
+        if (this.audioData.channels[i].sequence[sequencePosition] === 1) {
+          this.addNote(this.audioData.channels[i].frequency);
+        }
+      }
+
+      this.playNote();
+
+      sequencePosition++;
+      if (sequencePosition > this.audioData.sequenceLength) {
+        sequencePosition = 0;
+      }
+    }.bind(this), this.audioData.stepTime);
+  },
+
+  stop: function () {
+    window.clearInterval(this.interval);
+    this.interval = null;
+    this.stopNote();
+  },
+
+  playNote: function () {
+
     var i, il, note, oscillator;
 
     i = 0;
@@ -41,7 +88,7 @@ AudioGenerator.prototype = {
 
   },
 
-  stop: function () {
+  stopNote: function () {
     var i = 0,
       il = this.oscillators.length,
       item;
@@ -52,6 +99,7 @@ AudioGenerator.prototype = {
     }
 
     this.oscillators = [];
+    this.notes = [];
   }
 };
 
