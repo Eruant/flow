@@ -33,5 +33,10 @@
   "scripts": {
     "test": "./node_modules/.bin/gulp script-test",
     "start": "./node_modules/.bin/gulp default"
+  },
+  "dependencies": {
+    "backbone": "^1.1.2",
+    "jquery-browserify": "^1.8.1",
+    "underscore": "^1.6.0"
   }
 }

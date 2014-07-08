@@ -1,8 +1,8 @@
 mixin channel(channel, sequence)
-  tr
+  tr.channel
     td= channel
     td
-      input(value=440)
+      input(value=440).frequency
     - each val, index in sequence
       td.channel-= index + ":" + val
 
@@ -21,3 +21,5 @@ table#sequence-display
   +channel(0, [1, 0, 1, 0, 1, 0, 1, 0])
   +channel(1, [0, 1, 0, 1, 0, 1, 0, 0])
   +channel(2, [0, 0, 1, 0, 0, 0, 1, 0])
+
+div#test
