@@ -56,7 +56,7 @@
         var jade_interp;
         var locals_for_with = locals || {};
         (function(play, stop) {
-            buf.push('<button id="play">' + jade.escape(null == (jade_interp = play) ? "" : jade_interp) + '</button><button id="stop">' + jade.escape(null == (jade_interp = stop) ? "" : jade_interp) + "</button>");
+            buf.push('<button class="play">' + jade.escape(null == (jade_interp = play) ? "" : jade_interp) + '</button><button class="stop">' + jade.escape(null == (jade_interp = stop) ? "" : jade_interp) + '</button><button class="add-track">Add a track</button>');
         })("play" in locals_for_with ? locals_for_with.play : typeof play !== "undefined" ? play : undefined, "stop" in locals_for_with ? locals_for_with.stop : typeof stop !== "undefined" ? stop : undefined);
         return buf.join("");
     };

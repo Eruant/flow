@@ -20,8 +20,9 @@ module.exports = Backbone.View.extend({
     'click .step': 'toggleStep',
     'blur .frequency': 'updateFrequency',
     'keypress .frequency': 'onEnterUpdateFrequency',
-    'click #play': 'play',
-    'click #stop': 'stop'
+    'click .play': 'play',
+    'click .stop': 'stop',
+    'click .add-track': 'addTrack'
   },
 
   render: function () {
@@ -88,5 +89,9 @@ module.exports = Backbone.View.extend({
 
   stop: function () {
     this.audio.stop();
+  },
+
+  addTrack: function () {
+    this.tracks.add([{}]);
   }
 });

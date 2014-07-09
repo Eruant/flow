@@ -11,6 +11,7 @@ var AudioGenerator = function (model) {
     this.notes = [];
     this.interval = null;
     this.model = model;
+    this.bpm = (90 / (60)) * 100;
 
   } catch (e) {
     throw {
@@ -47,7 +48,7 @@ AudioGenerator.prototype = {
       if (sequencePosition > 7) {
         sequencePosition = 0;
       }
-    }.bind(this), 250);
+    }.bind(this), this.bpm);
   },
 
   stop: function () {

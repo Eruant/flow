@@ -12326,6 +12326,7 @@ var AudioGenerator = function (model) {
     this.notes = [];
     this.interval = null;
     this.model = model;
+    this.bpm = (90 / (60)) * 100;
 
   } catch (e) {
     throw {
@@ -12362,7 +12363,7 @@ AudioGenerator.prototype = {
       if (sequencePosition > 7) {
         sequencePosition = 0;
       }
-    }.bind(this), 250);
+    }.bind(this), this.bpm);
   },
 
   stop: function () {
@@ -12489,7 +12490,7 @@ module.exports = Backbone.Model.extend({
         var jade_interp;
         var locals_for_with = locals || {};
         (function(play, stop) {
-            buf.push('<button id="play">' + jade.escape(null == (jade_interp = play) ? "" : jade_interp) + '</button><button id="stop">' + jade.escape(null == (jade_interp = stop) ? "" : jade_interp) + "</button>");
+            buf.push('<button class="play">' + jade.escape(null == (jade_interp = play) ? "" : jade_interp) + '</button><button class="stop">' + jade.escape(null == (jade_interp = stop) ? "" : jade_interp) + '</button><button class="add-track">Add a track</button>');
         })("play" in locals_for_with ? locals_for_with.play : typeof play !== "undefined" ? play : undefined, "stop" in locals_for_with ? locals_for_with.stop : typeof stop !== "undefined" ? stop : undefined);
         return buf.join("");
     };
@@ -12547,8 +12548,9 @@ module.exports = Backbone.View.extend({
     'click .step': 'toggleStep',
     'blur .frequency': 'updateFrequency',
     'keypress .frequency': 'onEnterUpdateFrequency',
-    'click #play': 'play',
-    'click #stop': 'stop'
+    'click .play': 'play',
+    'click .stop': 'stop',
+    'click .add-track': 'addTrack'
   },
 
   render: function () {
@@ -12615,6 +12617,10 @@ module.exports = Backbone.View.extend({
 
   stop: function () {
     this.audio.stop();
+  },
+
+  addTrack: function () {
+    this.tracks.add([{}]);
   }
 });
 
