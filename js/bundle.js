@@ -12361,7 +12361,14 @@ var AudioGenerator = function (model) {
     this.notes = [];
     this.interval = null;
     this.model = model;
-    this.bpm = (90 / (60)) * 100;
+    this.bpm = (60 / 220) * 1000;
+
+    this.volumeNode = this.ctx.createGainNode();
+    this.volumeNode.gain.value = 1;
+    this.volumeNode.connect(this.ctx.destination);
+
+    this.volumeNode.gain.linearRampToValueAtTime(0, this.ctx.currentTime);
+    this.volumeNode.gain.linearRampToValueAtTime(1, this.ctx.currentTime + 2);
 
   } catch (e) {
     throw {
@@ -12409,17 +12416,24 @@ AudioGenerator.prototype = {
 
   playNote: function () {
 
-    var i, il, note, oscillator;
+    var i, il, note, oscillator, gain, time;
 
     i = 0;
     il = this.notes.length;
+    time = 0.1;
 
     for (; i < il; i++) {
+      gain = this.ctx.createGainNode();
+      gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(1, this.ctx.currentTime + time);
+      gain.gain.linearRampToValueAtTime(1, this.ctx.currentTime + (this.bpm / 1000) - time);
+      gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + (this.bpm / 1000));
       note = this.notes[i];
       oscillator = this.ctx.createOscillator();
       oscillator.type = 0;                           // { 0: sine, 1: square, 2: sawtooth, 3: triangle }
       oscillator.frequency.value = note; // hertz
-      oscillator.connect(this.ctx.destination);      // connect to speakers
+      oscillator.connect(gain);
+      gain.connect(this.volumeNode);
       oscillator.noteOn(0);
       this.oscillators.push(oscillator);
     }
