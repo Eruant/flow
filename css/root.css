@@ -6,29 +6,27 @@ html, body {
   font-family: 'Helvetica Neue', Helvetica; }
 
 #sequence-display {
-  margin: 30px auto; }
-  #sequence-display th {
-    padding: 10px; }
-  #sequence-display td {
-    width: 50px;
-    height: 50px;
-    background: #ccc; }
-  #sequence-display input {
-    max-width: 50px; }
-  #sequence-display .channel-0 {
-    border: solid 1px #f00; }
-  #sequence-display .channel-1 {
-    border: solid 1px #0f0; }
-  #sequence-display .channel-2 {
-    border: solid 1px #00f; }
-
-.sequence {
-  display: inline-block; }
-  .sequence .step {
-    display: inline-block;
-    margin-right: 5px;
-    width: 50px;
-    height: 50px;
-    background-color: #f00; }
-    .sequence .step.active {
-      background-color: #0f0; }
+  width: 504px;
+  margin: 0 auto; }
+  #sequence-display .channel {
+    position: relative;
+    margin-bottom: 5px;
+    min-height: 50px; }
+    #sequence-display .channel input {
+      margin-top: 20px;
+      clear: left;
+      float: left;
+      max-width: 50px;
+      text-align: center;
+      margin-right: 5px; }
+    #sequence-display .channel .sequence {
+      float: left;
+      display: inline-block; }
+      #sequence-display .channel .sequence .step {
+        display: inline-block;
+        margin-right: 5px;
+        width: 50px;
+        height: 50px;
+        background-color: #f00; }
+        #sequence-display .channel .sequence .step.active {
+          background-color: #0f0; }
