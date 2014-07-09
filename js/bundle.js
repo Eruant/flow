@@ -12303,12 +12303,47 @@ var view = new TrackView({
 
 view.tracks.add([
   {
-    frequency: 100,
-    sequence: [true, false, true, false, true, false, true, false]
+    frequency: 261.6,
+    sequence: [true, false, false, false, false, false, false, true, false, false, false, false, false, false, false, false]
   },
   {
-    frequency: 200,
-    sequence: [false, true, false, false, false, true, false, false]
+    frequency: 277.2,
+    sequence: [false, false, false, false, true, false, false, false, false, false, false, false, true, false, false, false]
+  },
+  {
+    frequency: 293.7
+  },
+  {
+    frequency: 311.1
+  },
+  {
+    frequency: 329.6
+  },
+  {
+    frequency: 349.2,
+    sequence: [true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false]
+  },
+  {
+    frequency: 370.0
+  },
+  {
+    frequency: 392.0,
+    sequence: [false, true, false, false, false, true, false, false, false, true, false, false, false, true, false, false]
+  },
+  {
+    frequency: 415.3,
+    sequence: [true, false, false, false, true, false, false, false, true, false, false, false, true, false, false, false]
+  },
+  {
+    frequency: 440
+  },
+  {
+    frequency: 466.2,
+    sequence: [true, false, false, false, false, false, false, true, false, false, false, false, false, false, false, false]
+  },
+  {
+    frequency: 493.9,
+    sequence: [false, false, false, false, true, false, false, false, false, false, false, false, true, false, false, false]
   }
 ]);
 
@@ -12360,7 +12395,7 @@ AudioGenerator.prototype = {
       this.playNote();
 
       sequencePosition++;
-      if (sequencePosition > 7) {
+      if (sequencePosition > this.model.models[0].get('sequence').length - 1) {
         sequencePosition = 0;
       }
     }.bind(this), this.bpm);
@@ -12414,19 +12449,25 @@ var Backbone = require('backbone'),
 
 module.exports = Backbone.Collection.extend({
   bpm: 90,
-  steps: 8,
+  steps: 16,
   model: channelModel
 });
 
 },{"../models/channelModel":8,"backbone":1}],8:[function(require,module,exports){
 var Backbone = require('backbone');
 
+var sequenceArray = new Array(16);
+
+for (var i = 0, il = sequenceArray.length; i < il; i++) {
+  sequenceArray[i] = false;
+}
+
 module.exports = Backbone.Model.extend({
   defaults: function () {
     return {
       frequency: 440,
       type: 0,
-      sequence: [false, false, false, false, false, false, false, false]
+      sequence: sequenceArray.slice(0)
     };
   }
 });
@@ -12497,12 +12538,12 @@ module.exports = Backbone.Model.extend({
 
     // index.jade compiled template
     templatizer["index"] = function tmpl_index() {
-        return '<!DOCTYPE html><html></html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>tone test</title><link href="css/root.css" type="text/css" rel="stylesheet"></head><body><h1>Audio Test</h1><div id="sequence-display"></div><script src="js/bundle.js"></script></body>';
+        return '<!DOCTYPE html><html></html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>tone test</title><link href="css/root.css" type="text/css" rel="stylesheet"></head><body><h1>Audio Test</h1><div id="sequence-display"></div><h2>Instructions</h2><p>Each row represents a channel. The frequency of the channel is on the left, and the blocks represent if the tune should play.\n</p><p>Press play and click the blocks on and off to make your own tunes.</p><script src="js/bundle.js"></script></body>';
     };
 
     // sequence.jade compiled template
     templatizer["sequence"] = function tmpl_sequence() {
-        return '<div id="sequence-display"></div>';
+        return '<div id="sequence-display"></div><h2>Instructions</h2><p>Each row represents a channel. The frequency of the channel is on the left, and the blocks represent if the tune should play.\n</p><p>Press play and click the blocks on and off to make your own tunes.</p>';
     };
 
     return templatizer;
