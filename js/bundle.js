@@ -12299,57 +12299,11 @@ Backbone.$ = $;
 var track = new TrackCollection();
 
 var view = new TrackView({
-  id: 'test',
+  el: $('#test'),
   model: track
 });
 
 track.add([{ frequency: 100 }, { frequency: 200 }]);
-window.console.log(track);
-
-/*
-var ChannelView = Backbone.View.extend({
-  model: new Channel(),
-  tagName: 'div',
-  initialize: function () {
-    this.template = _.template('<input class="frequency" value="<%= frequency %>">');
-  },
-  render: function () {
-    this.$el.html(this.template(this.model.toJSON()));
-    return this;
-  }
-});
-
-var tune = new Tune();
-
-var TuneView = Backbone.View.extend({
-  model: tune,
-  el: $('#test'),
-  initialize: function () {
-    this.model.on('add', this.render, this);
-  },
-  render: function () {
-    var self = this;
-    self.$el.html('');
-    _.each(this.model.toArray(), function (channel) {
-      self.$el.append((new ChannelView({ model: channel })).render().$el);
-    });
-    return this;
-  }
-});
-
-$(window.document).ready(function () {
-  $('.frequency').on('change', function () {
-    var channel = new Channel({frequency: $(this).val(), sequence: [1, 0, 0, 0]});
-    tune.add(channel);
-    window.console.log(tune.toJSON);
-  });
-
-  window.console.log('creating view');
-  var appView = new TuneView();
-  window.console.log('appView', appView);
-
-});
-*/
 
 },{"./collections/trackCollection":5,"./views/trackView":8,"backbone":1,"jquery-browserify":2}],5:[function(require,module,exports){
 var Backbone = require('backbone'),
@@ -12383,11 +12337,9 @@ module.exports = Backbone.View.extend({
   model: new ChannelModel(),
   tagName: 'div',
   initialize: function () {
-    window.console.log('init channel view');
     this.template = _.template('<span class="frequency"><%= frequency %></span>');
   },
   render: function () {
-    window.console.log('render channel view');
     this.$el.html(this.template(this.model.toJSON()));
     return this;
   }
@@ -12401,18 +12353,16 @@ var Backbone = require('backbone'),
 module.exports = Backbone.View.extend({
 
   initialize: function () {
-    window.console.log('init track view');
+    this.listenTo(this.model, 'add', this.render);
     this.listenTo(this.model, 'change', this.render);
   },
 
   render: function () {
-    window.console.log('render track view');
     var self = this;
 
     self.$el.html('');
 
     _.each(this.model.toArray(), function (channel) {
-      window.console.log('channel > ', channel);
       self.$el.append((new ChannelView({ model: channel })).render().$el);
     });
   }
