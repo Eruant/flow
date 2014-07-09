@@ -18,85 +18,45 @@
         var jade_mixins = {};
         var jade_interp;
         var locals_for_with = locals || {};
-        (function(frequency) {
-            buf.push("<p>FREQUENCY: " + jade.escape((jade_interp = frequency) == null ? "" : jade_interp) + "\n</p><input" + jade.attr("val", "" + frequency + "", true, false) + ' class="frequency"/>');
-        })("frequency" in locals_for_with ? locals_for_with.frequency : typeof frequency !== "undefined" ? frequency : undefined);
+        (function(frequency, sequence) {
+            buf.push("<input" + jade.attr("value", "" + frequency + "", true, false) + ' class="frequency"/><div class="sequence">');
+            (function() {
+                var $obj = sequence;
+                if ("number" == typeof $obj.length) {
+                    for (var $index = 0, $l = $obj.length; $index < $l; $index++) {
+                        var step = $obj[$index];
+                        if (step) {
+                            buf.push('<div class="step active"></div>');
+                        } else {
+                            buf.push('<div class="step"></div>');
+                        }
+                    }
+                } else {
+                    var $l = 0;
+                    for (var $index in $obj) {
+                        $l++;
+                        var step = $obj[$index];
+                        if (step) {
+                            buf.push('<div class="step active"></div>');
+                        } else {
+                            buf.push('<div class="step"></div>');
+                        }
+                    }
+                }
+            }).call(this);
+            buf.push("</div>");
+        })("frequency" in locals_for_with ? locals_for_with.frequency : typeof frequency !== "undefined" ? frequency : undefined, "sequence" in locals_for_with ? locals_for_with.sequence : typeof sequence !== "undefined" ? sequence : undefined);
         return buf.join("");
     };
 
     // index.jade compiled template
-    templatizer["index"] = function tmpl_index(locals) {
-        var buf = [];
-        var jade_mixins = {};
-        var jade_interp;
-        buf.push('<!DOCTYPE html><html></html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>tone test</title><link href="/css/root.css" type="text/css" rel="stylesheet"></head><body><h1>Audio Test</h1>');
-        buf.push('<table id="sequence-display"><tr><th>Channel</th><th>Frequency</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr>');
-        buf.push(templatizer["index"]["channel"](0, [ 1, 0, 1, 0, 1, 0, 1, 0 ]));
-        buf.push(templatizer["index"]["channel"](1, [ 0, 1, 0, 1, 0, 1, 0, 0 ]));
-        buf.push(templatizer["index"]["channel"](2, [ 0, 0, 1, 0, 0, 0, 1, 0 ]));
-        buf.push('</table><div id="test"></div><button id="add-channel">Add a channel</button><button id="start-button">start</button><button id="stop-button">stop</button><script src="js/bundle.js"></script></body>');
-        return buf.join("");
-    };
-
-    // index.jade:channel compiled template
-    templatizer["index"]["channel"] = function tmpl_index_channel(channel, sequence) {
-        var block = this && this.block, attributes = this && this.attributes || {}, buf = [];
-        buf.push('<tr class="channel"><td>' + jade.escape(null == (jade_interp = channel) ? "" : jade_interp) + '</td><td><input value="440" class="frequency"></td>');
-        (function() {
-            var $obj = sequence;
-            if ("number" == typeof $obj.length) {
-                for (var index = 0, $l = $obj.length; index < $l; index++) {
-                    var val = $obj[index];
-                    buf.push('<td class="channel-">' + jade.escape(null == (jade_interp = index + ":" + val) ? "" : jade_interp) + "</td>");
-                }
-            } else {
-                var $l = 0;
-                for (var index in $obj) {
-                    $l++;
-                    var val = $obj[index];
-                    buf.push('<td class="channel-">' + jade.escape(null == (jade_interp = index + ":" + val) ? "" : jade_interp) + "</td>");
-                }
-            }
-        }).call(this);
-        buf.push("</tr>");
-        return buf.join("");
+    templatizer["index"] = function tmpl_index() {
+        return '<!DOCTYPE html><html></html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>tone test</title><link href="/css/root.css" type="text/css" rel="stylesheet"></head><body><h1>Audio Test</h1><div id="sequence-display"></div><script src="js/bundle.js"></script></body>';
     };
 
     // sequence.jade compiled template
-    templatizer["sequence"] = function tmpl_sequence(locals) {
-        var buf = [];
-        var jade_mixins = {};
-        var jade_interp;
-        buf.push('<table id="sequence-display"><tr><th>Channel</th><th>Frequency</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr>');
-        buf.push(templatizer["sequence"]["channel"](0, [ 1, 0, 1, 0, 1, 0, 1, 0 ]));
-        buf.push(templatizer["sequence"]["channel"](1, [ 0, 1, 0, 1, 0, 1, 0, 0 ]));
-        buf.push(templatizer["sequence"]["channel"](2, [ 0, 0, 1, 0, 0, 0, 1, 0 ]));
-        buf.push('</table><div id="test"></div>');
-        return buf.join("");
-    };
-
-    // sequence.jade:channel compiled template
-    templatizer["sequence"]["channel"] = function tmpl_sequence_channel(channel, sequence) {
-        var block = this && this.block, attributes = this && this.attributes || {}, buf = [];
-        buf.push('<tr class="channel"><td>' + jade.escape(null == (jade_interp = channel) ? "" : jade_interp) + '</td><td><input value="440" class="frequency"/></td>');
-        (function() {
-            var $obj = sequence;
-            if ("number" == typeof $obj.length) {
-                for (var index = 0, $l = $obj.length; index < $l; index++) {
-                    var val = $obj[index];
-                    buf.push('<td class="channel-">' + jade.escape(null == (jade_interp = index + ":" + val) ? "" : jade_interp) + "</td>");
-                }
-            } else {
-                var $l = 0;
-                for (var index in $obj) {
-                    $l++;
-                    var val = $obj[index];
-                    buf.push('<td class="channel-">' + jade.escape(null == (jade_interp = index + ":" + val) ? "" : jade_interp) + "</td>");
-                }
-            }
-        }).call(this);
-        buf.push("</tr>");
-        return buf.join("");
+    templatizer["sequence"] = function tmpl_sequence() {
+        return '<div id="sequence-display"></div>';
     };
 
     return templatizer;

@@ -88,6 +88,7 @@ gulp.task('watch-scripts', function () {
 gulp.task('watch-markup', function () {
   return gulp.watch('src/**/*.jade', function () {
     gulp.run('markup');
+    gulp.run('script-templates');
   });
 });
 

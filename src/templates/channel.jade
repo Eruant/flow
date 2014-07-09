@@ -1,1 +1,8 @@
 input.frequency(value="#{frequency}")
+
+div.sequence
+  - each step in sequence
+    if step
+      div.step.active
+    else
+      div.step

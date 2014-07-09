@@ -5,7 +5,7 @@ module.exports = Backbone.Model.extend({
     return {
       frequency: 440,
       type: 0,
-      sequence: []
+      sequence: [false, false, false, false, false, false, false, false]
     };
   }
 });

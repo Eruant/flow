@@ -9,8 +9,17 @@ Backbone.$ = $;
 var track = new TrackCollection();
 
 var view = new TrackView({
-  el: $('#test'),
+  el: $('#sequence-display'),
   model: track
 });
 
-track.add([{ frequency: 100 }, { frequency: 200 }]);
+track.add([
+  {
+    frequency: 100,
+    sequence: [true, false, true, false, true, false, true, false]
+  },
+  {
+    frequency: 200,
+    sequence: [false, true, false, false, false, true, false, false]
+  }
+]);
