@@ -45,7 +45,7 @@ AudioGenerator.prototype = {
       this.playNote();
 
       sequencePosition++;
-      if (sequencePosition > 7) {
+      if (sequencePosition > this.model.models[0].get('sequence').length - 1) {
         sequencePosition = 0;
       }
     }.bind(this), this.bpm);
