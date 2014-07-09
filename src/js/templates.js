@@ -49,6 +49,18 @@
         return buf.join("");
     };
 
+    // controls.jade compiled template
+    templatizer["controls"] = function tmpl_controls(locals) {
+        var buf = [];
+        var jade_mixins = {};
+        var jade_interp;
+        var locals_for_with = locals || {};
+        (function(play, stop) {
+            buf.push('<button id="play">' + jade.escape(null == (jade_interp = play) ? "" : jade_interp) + '</button><button id="stop">' + jade.escape(null == (jade_interp = stop) ? "" : jade_interp) + "</button>");
+        })("play" in locals_for_with ? locals_for_with.play : typeof play !== "undefined" ? play : undefined, "stop" in locals_for_with ? locals_for_with.stop : typeof stop !== "undefined" ? stop : undefined);
+        return buf.join("");
+    };
+
     // index.jade compiled template
     templatizer["index"] = function tmpl_index() {
         return '<!DOCTYPE html><html></html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>tone test</title><link href="/css/root.css" type="text/css" rel="stylesheet"></head><body><h1>Audio Test</h1><div id="sequence-display"></div><script src="js/bundle.js"></script></body>';

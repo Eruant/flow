@@ -3,6 +3,6 @@ var Backbone = require('backbone'),
 
 module.exports = Backbone.Collection.extend({
   bpm: 90,
-  steps: 4,
+  steps: 8,
   model: channelModel
 });

@@ -1,6 +1,6 @@
-var AudioData = require('./AudioData');
+//var AudioData = require('./AudioData');
 
-var AudioGenerator = function () {
+var AudioGenerator = function (model) {
 
   try {
 
@@ -10,20 +10,7 @@ var AudioGenerator = function () {
     this.audioData = {};
     this.notes = [];
     this.interval = null;
-
-    this.audioData = new AudioData();
-
-    var channel = this.audioData.addChannel(100, 0);
-    this.audioData.toggleStep(channel, 0);
-    this.audioData.toggleStep(channel, 2);
-    this.audioData.toggleStep(channel, 4);
-    this.audioData.toggleStep(channel, 6);
-
-    channel = this.audioData.addChannel(200, 0);
-    this.audioData.toggleStep(channel, 1);
-    this.audioData.toggleStep(channel, 3);
-    this.audioData.toggleStep(channel, 5);
-    this.audioData.toggleStep(channel, 7);
+    this.model = model;
 
   } catch (e) {
     throw {
@@ -48,19 +35,19 @@ AudioGenerator.prototype = {
 
       this.stopNote();
 
-      for (var i = 0, il = this.audioData.channels.length; i < il; i++) {
-        if (this.audioData.channels[i].sequence[sequencePosition] === 1) {
-          this.addNote(this.audioData.channels[i].frequency);
+      for (var i = 0, il = this.model.models.length; i < il; i++) {
+        if (this.model.models[i].get('sequence')[sequencePosition]) {
+          this.addNote(this.model.models[i].get('frequency'));
         }
       }
 
       this.playNote();
 
       sequencePosition++;
-      if (sequencePosition > this.audioData.sequenceLength) {
+      if (sequencePosition > 7) {
         sequencePosition = 0;
       }
-    }.bind(this), this.audioData.stepTime);
+    }.bind(this), 250);
   },
 
   stop: function () {

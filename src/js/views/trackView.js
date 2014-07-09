@@ -1,17 +1,27 @@
 var Backbone = require('backbone'),
   _ = require('underscore'),
   $ = require('jquery-browserify'),
-  ChannelView = require('./channelView.js');
+  ChannelView = require('./channelView.js'),
+  TrackCollection = require('../collections/trackCollection'),
+  templates = require('../templates'),
+  AudioGenerator = require('../classes/audioGenerator');
 
 module.exports = Backbone.View.extend({
 
   initialize: function () {
-    this.listenTo(this.model, 'add', this.render);
-    this.listenTo(this.model, 'change', this.render);
+    this.tracks = new TrackCollection();
+    this.audio = new AudioGenerator(this.tracks);
+
+    this.listenTo(this.tracks, 'add', this.render);
+    this.listenTo(this.tracks, 'change', this.render);
   },
 
   events: {
-    'click .step': 'toggleStep'
+    'click .step': 'toggleStep',
+    'blur .frequency': 'updateFrequency',
+    'keypress .frequency': 'onEnterUpdateFrequency',
+    'click #play': 'play',
+    'click #stop': 'stop'
   },
 
   render: function () {
@@ -21,7 +31,7 @@ module.exports = Backbone.View.extend({
 
     self.$el.html('');
 
-    _.each(this.model.toArray(), function (channel) {
+    _.each(this.tracks.toArray(), function (channel) {
       options = {
         model: channel,
         attributes: {
@@ -31,19 +41,52 @@ module.exports = Backbone.View.extend({
       self.$el.append((new ChannelView(options)).render().$el);
       count++;
     });
+
+    self.$el.append(templates['controls']({ play: 'Play audio', stop: 'Stop audio'}));
   },
 
   toggleStep: function (e) {
     e.preventDefault();
 
-    var step, channel, value;
+    var step = this.getStep(e.currentTarget),
+      channel = this.getChannel(e.currentTarget);
 
-    step = $(e.currentTarget).data('step');
-    channel = $(e.currentTarget).closest('.channel').data('channel');
-
-    value = this.model.models[channel].get('sequence')[step];
-    this.model.models[channel].get('sequence')[step] = !value;
-
+    // reverse the value
+    this.tracks.models[channel].get('sequence')[step] = !this.tracks.models[channel].get('sequence')[step];
     this.render();
+  },
+
+  updateFrequency: function (e) {
+    e.preventDefault();
+
+    var channel = this.getChannel(e.currentTarget),
+      frequency = $(e.currentTarget).val();
+
+    this.tracks.models[channel].set({ frequency: frequency });
+  },
+
+  onEnterUpdateFrequency: function (e) {
+
+    if (e.keyCode === 13) {
+      _.delay(function () {
+        $(e.currentTarget).blur();
+      }, 100);
+    }
+  },
+
+  getStep: function (target) {
+    return $(target).data('step');
+  },
+
+  getChannel: function (target) {
+    return $(target).closest('.channel').data('channel');
+  },
+
+  play: function () {
+    this.audio.play();
+  },
+
+  stop: function () {
+    this.audio.stop();
   }
 });

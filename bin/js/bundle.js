@@ -12292,20 +12292,16 @@ return jQuery;
 },{}],5:[function(require,module,exports){
 var $ = require('jquery-browserify'),
   Backbone = require('backbone'),
-  TrackCollection = require('./collections/trackCollection'),
   TrackView = require('./views/trackView');
 
 // let backbone know about jQuery
 Backbone.$ = $;
 
-var track = new TrackCollection();
-
 var view = new TrackView({
-  el: $('#sequence-display'),
-  model: track
+  el: $('#sequence-display')
 });
 
-track.add([
+view.tracks.add([
   {
     frequency: 100,
     sequence: [true, false, true, false, true, false, true, false]
@@ -12316,17 +12312,112 @@ track.add([
   }
 ]);
 
-},{"./collections/trackCollection":6,"./views/trackView":10,"backbone":1,"jquery-browserify":3}],6:[function(require,module,exports){
+},{"./views/trackView":11,"backbone":1,"jquery-browserify":3}],6:[function(require,module,exports){
+//var AudioData = require('./AudioData');
+
+var AudioGenerator = function (model) {
+
+  try {
+
+    var ac = window.AudioContext || window.webkitAudioContext;
+    this.ctx = new ac();
+    this.oscillators = [];
+    this.audioData = {};
+    this.notes = [];
+    this.interval = null;
+    this.model = model;
+
+  } catch (e) {
+    throw {
+      name: 'AudioGenerator',
+      msg: e
+    };
+  }
+
+};
+
+AudioGenerator.prototype = {
+
+  addNote: function (frequency) {
+    this.notes.push(frequency);
+  },
+
+  play: function () {
+
+    var sequencePosition = 0;
+
+    this.interval = window.setInterval(function () {
+
+      this.stopNote();
+
+      for (var i = 0, il = this.model.models.length; i < il; i++) {
+        if (this.model.models[i].get('sequence')[sequencePosition]) {
+          this.addNote(this.model.models[i].get('frequency'));
+        }
+      }
+
+      this.playNote();
+
+      sequencePosition++;
+      if (sequencePosition > 7) {
+        sequencePosition = 0;
+      }
+    }.bind(this), 250);
+  },
+
+  stop: function () {
+    window.clearInterval(this.interval);
+    this.interval = null;
+    this.stopNote();
+  },
+
+  playNote: function () {
+
+    var i, il, note, oscillator;
+
+    i = 0;
+    il = this.notes.length;
+
+    for (; i < il; i++) {
+      note = this.notes[i];
+      oscillator = this.ctx.createOscillator();
+      oscillator.type = 0;                           // { 0: sine, 1: square, 2: sawtooth, 3: triangle }
+      oscillator.frequency.value = note; // hertz
+      oscillator.connect(this.ctx.destination);      // connect to speakers
+      oscillator.noteOn(0);
+      this.oscillators.push(oscillator);
+    }
+
+  },
+
+  stopNote: function () {
+    var i = 0,
+      il = this.oscillators.length,
+      item;
+
+    for (; i < il; i++) {
+      item = this.oscillators[i];
+      item.noteOff(0);
+    }
+
+    this.oscillators = [];
+    this.notes = [];
+  }
+};
+
+module.exports = AudioGenerator;
+
+},{}],7:[function(require,module,exports){
 var Backbone = require('backbone'),
   channelModel = require('../models/channelModel');
 
 module.exports = Backbone.Collection.extend({
   bpm: 90,
-  steps: 4,
+  steps: 8,
   model: channelModel
 });
 
-},{"../models/channelModel":7,"backbone":1}],7:[function(require,module,exports){
+},{"../models/channelModel":8,"backbone":1}],8:[function(require,module,exports){
 var Backbone = require('backbone');
 
 module.exports = Backbone.Model.extend({
@@ -12339,7 +12430,7 @@ module.exports = Backbone.Model.extend({
   }
 });
 
-},{"backbone":1}],8:[function(require,module,exports){
+},{"backbone":1}],9:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         define([], factory);
@@ -12391,6 +12482,18 @@ module.exports = Backbone.Model.extend({
         return buf.join("");
     };
 
+    // controls.jade compiled template
+    templatizer["controls"] = function tmpl_controls(locals) {
+        var buf = [];
+        var jade_mixins = {};
+        var jade_interp;
+        var locals_for_with = locals || {};
+        (function(play, stop) {
+            buf.push('<button id="play">' + jade.escape(null == (jade_interp = play) ? "" : jade_interp) + '</button><button id="stop">' + jade.escape(null == (jade_interp = stop) ? "" : jade_interp) + "</button>");
+        })("play" in locals_for_with ? locals_for_with.play : typeof play !== "undefined" ? play : undefined, "stop" in locals_for_with ? locals_for_with.stop : typeof stop !== "undefined" ? stop : undefined);
+        return buf.join("");
+    };
+
     // index.jade compiled template
     templatizer["index"] = function tmpl_index() {
         return '<!DOCTYPE html><html></html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>tone test</title><link href="/css/root.css" type="text/css" rel="stylesheet"></head><body><h1>Audio Test</h1><div id="sequence-display"></div><script src="js/bundle.js"></script></body>';
@@ -12403,7 +12506,7 @@ module.exports = Backbone.Model.extend({
 
     return templatizer;
 }));
-},{"fs":2}],9:[function(require,module,exports){
+},{"fs":2}],10:[function(require,module,exports){
 var Backbone = require('backbone'),
   templates = require('../templates.js'),
   ChannelModel = require('../models/channelModel');
@@ -12421,21 +12524,31 @@ module.exports = Backbone.View.extend({
   }
 });
 
-},{"../models/channelModel":7,"../templates.js":8,"backbone":1}],10:[function(require,module,exports){
+},{"../models/channelModel":8,"../templates.js":9,"backbone":1}],11:[function(require,module,exports){
 var Backbone = require('backbone'),
   _ = require('underscore'),
   $ = require('jquery-browserify'),
-  ChannelView = require('./channelView.js');
+  ChannelView = require('./channelView.js'),
+  TrackCollection = require('../collections/trackCollection'),
+  templates = require('../templates'),
+  AudioGenerator = require('../classes/audioGenerator');
 
 module.exports = Backbone.View.extend({
 
   initialize: function () {
-    this.listenTo(this.model, 'add', this.render);
-    this.listenTo(this.model, 'change', this.render);
+    this.tracks = new TrackCollection();
+    this.audio = new AudioGenerator(this.tracks);
+
+    this.listenTo(this.tracks, 'add', this.render);
+    this.listenTo(this.tracks, 'change', this.render);
   },
 
   events: {
-    'click .step': 'toggleStep'
+    'click .step': 'toggleStep',
+    'blur .frequency': 'updateFrequency',
+    'keypress .frequency': 'onEnterUpdateFrequency',
+    'click #play': 'play',
+    'click #stop': 'stop'
   },
 
   render: function () {
@@ -12445,7 +12558,7 @@ module.exports = Backbone.View.extend({
 
     self.$el.html('');
 
-    _.each(this.model.toArray(), function (channel) {
+    _.each(this.tracks.toArray(), function (channel) {
       options = {
         model: channel,
         attributes: {
@@ -12455,21 +12568,54 @@ module.exports = Backbone.View.extend({
       self.$el.append((new ChannelView(options)).render().$el);
       count++;
     });
+
+    self.$el.append(templates['controls']({ play: 'Play audio', stop: 'Stop audio'}));
   },
 
   toggleStep: function (e) {
     e.preventDefault();
 
-    var step, channel, value;
+    var step = this.getStep(e.currentTarget),
+      channel = this.getChannel(e.currentTarget);
 
-    step = $(e.currentTarget).data('step');
-    channel = $(e.currentTarget).closest('.channel').data('channel');
-
-    value = this.model.models[channel].get('sequence')[step];
-    this.model.models[channel].get('sequence')[step] = !value;
-
+    // reverse the value
+    this.tracks.models[channel].get('sequence')[step] = !this.tracks.models[channel].get('sequence')[step];
     this.render();
+  },
+
+  updateFrequency: function (e) {
+    e.preventDefault();
+
+    var channel = this.getChannel(e.currentTarget),
+      frequency = $(e.currentTarget).val();
+
+    this.tracks.models[channel].set({ frequency: frequency });
+  },
+
+  onEnterUpdateFrequency: function (e) {
+
+    if (e.keyCode === 13) {
+      _.delay(function () {
+        $(e.currentTarget).blur();
+      }, 100);
+    }
+  },
+
+  getStep: function (target) {
+    return $(target).data('step');
+  },
+
+  getChannel: function (target) {
+    return $(target).closest('.channel').data('channel');
+  },
+
+  play: function () {
+    this.audio.play();
+  },
+
+  stop: function () {
+    this.audio.stop();
   }
 });
 
-},{"./channelView.js":9,"backbone":1,"jquery-browserify":3,"underscore":4}]},{},[5])
+},{"../classes/audioGenerator":6,"../collections/trackCollection":7,"../templates":9,"./channelView.js":10,"backbone":1,"jquery-browserify":3,"underscore":4}]},{},[5])
