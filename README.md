@@ -9,8 +9,9 @@ Generate table of a sequencer to look like an MPC
 ## TODO
 
 - [x] generate a tone
-- [ ] set the tone
-- [ ] play sequence of tones
-- [ ] set a sequence of tones
-- [ ] set the frequency of each tone
+- [x] set the tone
+- [x] play sequence of tones
+- [x] set a sequence of tones
+- [x] set the frequency of each tone
 - [ ] set the type of wave
+- [ ] be able to mute tracks
