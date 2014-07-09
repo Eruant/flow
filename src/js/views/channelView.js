@@ -5,6 +5,7 @@ var Backbone = require('backbone'),
 module.exports = Backbone.View.extend({
   model: new ChannelModel(),
   tagName: 'div',
+  className: 'channel',
   initialize: function () {
     this.template = templates['channel'];
   },

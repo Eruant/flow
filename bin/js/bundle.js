@@ -12365,23 +12365,23 @@ module.exports = Backbone.Model.extend({
             (function() {
                 var $obj = sequence;
                 if ("number" == typeof $obj.length) {
-                    for (var $index = 0, $l = $obj.length; $index < $l; $index++) {
-                        var step = $obj[$index];
+                    for (var count = 0, $l = $obj.length; count < $l; count++) {
+                        var step = $obj[count];
                         if (step) {
-                            buf.push('<div class="step active"></div>');
+                            buf.push("<div" + jade.attr("data-step", "" + count + "", true, false) + ' class="step active"></div>');
                         } else {
-                            buf.push('<div class="step"></div>');
+                            buf.push("<div" + jade.attr("data-step", "" + count + "", true, false) + ' class="step step"></div>');
                         }
                     }
                 } else {
                     var $l = 0;
-                    for (var $index in $obj) {
+                    for (var count in $obj) {
                         $l++;
-                        var step = $obj[$index];
+                        var step = $obj[count];
                         if (step) {
-                            buf.push('<div class="step active"></div>');
+                            buf.push("<div" + jade.attr("data-step", "" + count + "", true, false) + ' class="step active"></div>');
                         } else {
-                            buf.push('<div class="step"></div>');
+                            buf.push("<div" + jade.attr("data-step", "" + count + "", true, false) + ' class="step step"></div>');
                         }
                     }
                 }
@@ -12411,6 +12411,7 @@ var Backbone = require('backbone'),
 module.exports = Backbone.View.extend({
   model: new ChannelModel(),
   tagName: 'div',
+  className: 'channel',
   initialize: function () {
     this.template = templates['channel'];
   },
@@ -12423,6 +12424,7 @@ module.exports = Backbone.View.extend({
 },{"../models/channelModel":7,"../templates.js":8,"backbone":1}],10:[function(require,module,exports){
 var Backbone = require('backbone'),
   _ = require('underscore'),
+  $ = require('jquery-browserify'),
   ChannelView = require('./channelView.js');
 
 module.exports = Backbone.View.extend({
@@ -12432,15 +12434,42 @@ module.exports = Backbone.View.extend({
     this.listenTo(this.model, 'change', this.render);
   },
 
+  events: {
+    'click .step': 'toggleStep'
+  },
+
   render: function () {
-    var self = this;
+    var self = this,
+      count = 0,
+      options;
 
     self.$el.html('');
 
     _.each(this.model.toArray(), function (channel) {
-      self.$el.append((new ChannelView({ model: channel })).render().$el);
+      options = {
+        model: channel,
+        attributes: {
+          'data-channel': count
+        }
+      };
+      self.$el.append((new ChannelView(options)).render().$el);
+      count++;
     });
+  },
+
+  toggleStep: function (e) {
+    e.preventDefault();
+
+    var step, channel, value;
+
+    step = $(e.currentTarget).data('step');
+    channel = $(e.currentTarget).closest('.channel').data('channel');
+
+    value = this.model.models[channel].get('sequence')[step];
+    this.model.models[channel].get('sequence')[step] = !value;
+
+    this.render();
   }
 });
 
-},{"./channelView.js":9,"backbone":1,"underscore":4}]},{},[5])
+},{"./channelView.js":9,"backbone":1,"jquery-browserify":3,"underscore":4}]},{},[5])

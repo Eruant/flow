@@ -1,8 +1,8 @@
 input.frequency(value="#{frequency}")
 
 div.sequence
-  - each step in sequence
+  - each step, count in sequence
     if step
-      div.step.active
+      div.step.active(data-step="#{count}")
     else
-      div.step
+      div.step.step(data-step="#{count}")

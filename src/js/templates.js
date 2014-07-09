@@ -23,23 +23,23 @@
             (function() {
                 var $obj = sequence;
                 if ("number" == typeof $obj.length) {
-                    for (var $index = 0, $l = $obj.length; $index < $l; $index++) {
-                        var step = $obj[$index];
+                    for (var count = 0, $l = $obj.length; count < $l; count++) {
+                        var step = $obj[count];
                         if (step) {
-                            buf.push('<div class="step active"></div>');
+                            buf.push("<div" + jade.attr("data-step", "" + count + "", true, false) + ' class="step active"></div>');
                         } else {
-                            buf.push('<div class="step"></div>');
+                            buf.push("<div" + jade.attr("data-step", "" + count + "", true, false) + ' class="step step"></div>');
                         }
                     }
                 } else {
                     var $l = 0;
-                    for (var $index in $obj) {
+                    for (var count in $obj) {
                         $l++;
-                        var step = $obj[$index];
+                        var step = $obj[count];
                         if (step) {
-                            buf.push('<div class="step active"></div>');
+                            buf.push("<div" + jade.attr("data-step", "" + count + "", true, false) + ' class="step active"></div>');
                         } else {
-                            buf.push('<div class="step"></div>');
+                            buf.push("<div" + jade.attr("data-step", "" + count + "", true, false) + ' class="step step"></div>');
                         }
                     }
                 }
