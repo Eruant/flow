@@ -1,12 +1,12 @@
 var Backbone = require('backbone'),
-  _ = require('underscore'),
+  templates = require('../templates.js'),
   ChannelModel = require('../models/channelModel');
 
 module.exports = Backbone.View.extend({
   model: new ChannelModel(),
   tagName: 'div',
   initialize: function () {
-    this.template = _.template('<span class="frequency"><%= frequency %></span>');
+    this.template = templates['channel'];
   },
   render: function () {
     this.$el.html(this.template(this.model.toJSON()));

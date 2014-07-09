@@ -7,8 +7,10 @@ var gulp = require('gulp'),
     sass = require('gulp-sass'),
     source = require('vinyl-source-stream'),
     jade = require('gulp-jade'),
-    karma = require('gulp-karma')/*,
+    karma = require('gulp-karma'),
+    templatizer = require('templatizer')/*,
     streamify = require('gulp-streamify'),
+    concat = require('gulp-concat'),
     uglify = require('gulp-uglify')*/;
 
 gulp.task('default', ['compile', 'watch', 'server']);
@@ -18,7 +20,7 @@ gulp.task('compile', ['scripts', 'markup', 'styles', 'assets']);
 gulp.task('scripts', ['script-compile']);
 
 gulp.task('script-hints', function () {
-  return gulp.src(['src/js/**/*.js', '!src/js/**/*_spec.js'])
+  return gulp.src(['src/js/**/*.js', '!src/js/**/*_spec.js', '!src/js/templates.js'])
     .pipe(jshint('.jshintrc'))
     .pipe(jshint.reporter('default'))
     .on('error', function () {
@@ -38,7 +40,17 @@ gulp.task('script-test', function () {
     });
 });
 
-gulp.task('script-compile', ['script-hints', 'script-test'], function () {
+gulp.task('script-templates', function () {
+
+  templatizer('src/templates', 'src/js/templates.js');
+  //return gulp.src('src/templates/**/*.jade')
+    //.pipe(jade({
+      //client: true
+    //}))
+    //.pipe(gulp.dest('src/js/templates'));
+});
+
+gulp.task('script-compile', ['script-hints', 'script-test', 'script-templates'], function () {
   var bundleStream = browserify('./src/js/base.js').bundle();
 
   bundleStream
