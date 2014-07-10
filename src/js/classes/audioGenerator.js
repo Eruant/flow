@@ -11,7 +11,11 @@ var AudioGenerator = function (model) {
     this.notes = [];
     this.interval = null;
     this.model = model;
-    this.bpm = (60 / 220) * 1000;
+    this.bpm = (60 / this.model.bpm) * 1000;
+    this.stepGainNode = new Array(this.model.steps);
+    for (var i = 0, il = this.stepGainNode.length; i < il; i++) {
+      this.stepGainNode[i] = this.ctx.createGainNode();
+    }
 
     this.volumeNode = this.ctx.createGainNode();
     this.volumeNode.gain.value = 1;
@@ -66,25 +70,25 @@ AudioGenerator.prototype = {
 
   playNote: function () {
 
-    var i, il, note, oscillator, gain, time;
+    var i, il, note, oscillator, stepVolume, time;
 
     i = 0;
     il = this.notes.length;
     time = 0.1;
 
     for (; i < il; i++) {
-      gain = this.ctx.createGainNode();
-      gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(1, this.ctx.currentTime + time);
-      gain.gain.linearRampToValueAtTime(1, this.ctx.currentTime + (this.bpm / 1000) - time);
-      gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + (this.bpm / 1000));
+      stepVolume = this.stepGainNode[i];
+      stepVolume.gain.linearRampToValueAtTime(0, this.ctx.currentTime);
+      stepVolume.gain.linearRampToValueAtTime(1, this.ctx.currentTime + time);
+      stepVolume.gain.linearRampToValueAtTime(1, this.ctx.currentTime + (this.bpm / 1000) - time);
+      stepVolume.gain.linearRampToValueAtTime(0, this.ctx.currentTime + (this.bpm / 1000));
       note = this.notes[i];
       oscillator = this.ctx.createOscillator();
       oscillator.type = 0;                           // { 0: sine, 1: square, 2: sawtooth, 3: triangle }
       oscillator.frequency.value = note; // hertz
-      oscillator.connect(gain);
-      gain.connect(this.volumeNode);
-      oscillator.noteOn(0);
+      oscillator.connect(stepVolume);
+      stepVolume.connect(this.volumeNode);
+      oscillator.start(0);
       this.oscillators.push(oscillator);
     }
 
@@ -97,7 +101,7 @@ AudioGenerator.prototype = {
 
     for (; i < il; i++) {
       item = this.oscillators[i];
-      item.noteOff(0);
+      item.stop(0);
     }
 
     this.oscillators = [];
