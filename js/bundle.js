@@ -12347,7 +12347,7 @@ view.tracks.add([
   }
 ]);
 
-},{"./views/trackView":11,"backbone":1,"jquery-browserify":3}],6:[function(require,module,exports){
+},{"./views/trackView":12,"backbone":1,"jquery-browserify":3}],6:[function(require,module,exports){
 //var AudioData = require('./AudioData');
 
 var AudioGenerator = function (model) {
@@ -12361,7 +12361,11 @@ var AudioGenerator = function (model) {
     this.notes = [];
     this.interval = null;
     this.model = model;
-    this.bpm = (60 / 220) * 1000;
+    this.bpm = (60 / this.model.bpm) * 1000;
+    this.stepGainNode = new Array(this.model.steps);
+    for (var i = 0, il = this.stepGainNode.length; i < il; i++) {
+      this.stepGainNode[i] = this.ctx.createGainNode();
+    }
 
     this.volumeNode = this.ctx.createGainNode();
     this.volumeNode.gain.value = 1;
@@ -12416,25 +12420,25 @@ AudioGenerator.prototype = {
 
   playNote: function () {
 
-    var i, il, note, oscillator, gain, time;
+    var i, il, note, oscillator, stepVolume, time;
 
     i = 0;
     il = this.notes.length;
     time = 0.1;
 
     for (; i < il; i++) {
-      gain = this.ctx.createGainNode();
-      gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(1, this.ctx.currentTime + time);
-      gain.gain.linearRampToValueAtTime(1, this.ctx.currentTime + (this.bpm / 1000) - time);
-      gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + (this.bpm / 1000));
+      stepVolume = this.stepGainNode[i];
+      stepVolume.gain.linearRampToValueAtTime(0, this.ctx.currentTime);
+      stepVolume.gain.linearRampToValueAtTime(1, this.ctx.currentTime + time);
+      stepVolume.gain.linearRampToValueAtTime(1, this.ctx.currentTime + (this.bpm / 1000) - time);
+      stepVolume.gain.linearRampToValueAtTime(0, this.ctx.currentTime + (this.bpm / 1000));
       note = this.notes[i];
       oscillator = this.ctx.createOscillator();
       oscillator.type = 0;                           // { 0: sine, 1: square, 2: sawtooth, 3: triangle }
       oscillator.frequency.value = note; // hertz
-      oscillator.connect(gain);
-      gain.connect(this.volumeNode);
-      oscillator.noteOn(0);
+      oscillator.connect(stepVolume);
+      stepVolume.connect(this.volumeNode);
+      oscillator.start(0);
       this.oscillators.push(oscillator);
     }
 
@@ -12447,7 +12451,7 @@ AudioGenerator.prototype = {
 
     for (; i < il; i++) {
       item = this.oscillators[i];
-      item.noteOff(0);
+      item.stop(0);
     }
 
     this.oscillators = [];
@@ -12459,34 +12463,47 @@ module.exports = AudioGenerator;
 
 },{}],7:[function(require,module,exports){
 var Backbone = require('backbone'),
-  channelModel = require('../models/channelModel');
+  channelModel = require('../models/channelModel'),
+  cfg = require('../config');
 
 module.exports = Backbone.Collection.extend({
-  bpm: 90,
-  steps: 16,
+  bpm: cfg.track.bpm,
+  steps: cfg.track.steps,
   model: channelModel
 });
 
-},{"../models/channelModel":8,"backbone":1}],8:[function(require,module,exports){
-var Backbone = require('backbone');
+},{"../config":8,"../models/channelModel":9,"backbone":1}],8:[function(require,module,exports){
 
-var sequenceArray = new Array(16);
+module.exports = {
+  track: {
+    bpm: 220,
+    steps: 16
+  }
+};
 
-for (var i = 0, il = sequenceArray.length; i < il; i++) {
-  sequenceArray[i] = false;
-}
+},{}],9:[function(require,module,exports){
+var Backbone = require('backbone'),
+  cfg = require('../config');
+
 
 module.exports = Backbone.Model.extend({
   defaults: function () {
+    
+    var sequenceArray = new Array(cfg.track.steps);
+
+    for (var i = 0, il = sequenceArray.length; i < il; i++) {
+      sequenceArray[i] = false;
+    }
+
     return {
       frequency: 440,
       type: 0,
-      sequence: sequenceArray.slice(0)
+      sequence: sequenceArray
     };
   }
 });
 
-},{"backbone":1}],9:[function(require,module,exports){
+},{"../config":8,"backbone":1}],10:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         define([], factory);
@@ -12562,7 +12579,7 @@ module.exports = Backbone.Model.extend({
 
     return templatizer;
 }));
-},{"fs":2}],10:[function(require,module,exports){
+},{"fs":2}],11:[function(require,module,exports){
 var Backbone = require('backbone'),
   templates = require('../templates.js'),
   ChannelModel = require('../models/channelModel');
@@ -12580,7 +12597,7 @@ module.exports = Backbone.View.extend({
   }
 });
 
-},{"../models/channelModel":8,"../templates.js":9,"backbone":1}],11:[function(require,module,exports){
+},{"../models/channelModel":9,"../templates.js":10,"backbone":1}],12:[function(require,module,exports){
 var Backbone = require('backbone'),
   _ = require('underscore'),
   $ = require('jquery-browserify'),
@@ -12679,4 +12696,4 @@ module.exports = Backbone.View.extend({
   }
 });
 
-},{"../classes/audioGenerator":6,"../collections/trackCollection":7,"../templates":9,"./channelView.js":10,"backbone":1,"jquery-browserify":3,"underscore":4}]},{},[5])
+},{"../classes/audioGenerator":6,"../collections/trackCollection":7,"../templates":10,"./channelView.js":11,"backbone":1,"jquery-browserify":3,"underscore":4}]},{},[5])
